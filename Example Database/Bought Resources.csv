@@ -1,0 +1,16 @@
+ID;Resource;Price;Date;Shop
+1;Feed;40;2020-04-14;Shop A
+2;Feed;40;2020-04-30;Shop A
+3;Feed;45;2020-05-10;Shop B
+4;Feed;40;2020-06-13;Shop A
+5;Feed;40;2020-07-01;Shop A
+6;Grain;50;2020-07-11;Local farm
+7;Grain;50;2020-09-02;Local farm
+8;Feed;40;2020-09-15;Shop A
+9;Feed;40;2020-10-06;Shop A
+10;Feed;45;2020-10-06;Shop B
+11;Feed;40;2020-10-12;Shop A
+12;Grain;50;2020-11-01;Local farm
+13;Feed;40;2020-12-08;Shop A
+14;Feed;40;2021-04-01;Shop A
+15;Feed;45;2021-04-12;Shop B
