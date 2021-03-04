@@ -4,7 +4,11 @@
 Editor_Collected_Eggs::Editor_Collected_Eggs(int X, int Y, int W, int H, SQLite::Database& db)
 	: SQL_Editor(X, Y, W, H, "Collected Eggs", "Collected Eggs", db)
 {
-	;
+	input_date.align(FL_ALIGN_TOP);
+	input_eggs.align(FL_ALIGN_TOP);
+	input_small_eggs.align(FL_ALIGN_TOP);
+
+	resize(X, Y, W, H);
 }
 
 bool Editor_Collected_Eggs::add_record()

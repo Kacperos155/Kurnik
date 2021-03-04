@@ -3,22 +3,20 @@
 
 void SQL_Editor::create_pages_navigation()
 {
-	page_buttons_pack.type(FL_HORIZONTAL);
-	page_buttons_pack.resizable(main_vertical_pack);
 	button_begin.take_focus();
 
 	button_begin.callback([](Fl_Widget*, void* v) {
 		reinterpret_cast<SQL_Table*>(v)->prev_page(true);
-		}, & database_view);
+		}, &database_view);
 	button_prev.callback([](Fl_Widget*, void* v) {
 		reinterpret_cast<SQL_Table*>(v)->prev_page();
-		}, & database_view);
+		}, &database_view);
 	button_next.callback([](Fl_Widget*, void* v) {
 		reinterpret_cast<SQL_Table*>(v)->next_page();
-		}, & database_view);
+		}, &database_view);
 	button_end.callback([](Fl_Widget*, void* v) {
 		reinterpret_cast<SQL_Table*>(v)->next_page(true);
-		}, & database_view);
+		}, &database_view);
 
 	button_begin.shortcut(FL_Home);
 	button_prev.shortcut(FL_Page_Up);
@@ -31,6 +29,44 @@ SQL_Editor::SQL_Editor(int X, int Y, int W, int H, std::string_view sql_table_na
 {
 	create_pages_navigation();
 	labeltype(Fl_Labeltype::FL_NO_LABEL);
+	resize(X, Y, W, H);
+}
+
+void SQL_Editor::resize(int X, int Y, int W, int H)
+{
+	if(optimal_height != H)
+		database_view.resize(X, Y, W, H);
+	auto curr_height = database_view.h() + Y + 1;
+
+	{
+		auto width = 50;
+		auto height = 20;
+		auto curr_width = x() + 1;
+		page_buttons.resize(X, curr_height, W, height);
+
+		button_begin.resize(curr_width, curr_height, width, height);
+		button_prev.resize(curr_width += width, curr_height, width, height);
+		page_box.resize(curr_width += width + 1, curr_height, W - X - (curr_width * 4), 20);
+		curr_width += page_box.w();
+		button_next.resize(curr_width, curr_height, width, height);
+		button_end.resize(curr_width += width, curr_height, width, height);
+		curr_height += height * 4;
+	}
+	inputs.resize(X + 20, curr_height, W - 40, 50);
+	{
+		auto width = inputs.w() / 3;
+		auto spacer = width / 10;
+		auto curr_x = inputs.x();
+		for (int i = 0; i < inputs.children(); ++i) {
+			auto* widget = inputs.child(i);
+			widget->resize(curr_x, inputs.y(), width - spacer / 2, inputs.h());
+			curr_x += width + spacer / 4;
+		}
+	}
+	curr_height += 50;
+	optimal_height = curr_height;
+
+	Fl_Widget::resize(X, Y, W, H);
 }
 
 void SQL_Editor::recreate_table()
