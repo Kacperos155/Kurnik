@@ -43,8 +43,9 @@ bool SQL_Table::load_data()
 	return true;
 }
 
-void SQL_Table::optimal_size(int X, int Y, int width)
+void SQL_Table::optimal_size()
 {
+	auto width = w();
 	fl_font(FL_HELVETICA + FL_BOLD, FL_NORMAL_SIZE);
 	{
 		auto max_row_index = offset + visible_rows_limit;
@@ -94,14 +95,14 @@ void SQL_Table::optimal_size(int X, int Y, int width)
 		col_width(i, column_width);
 	}
 	col_width(columns_amount - 1, width - used_width - 1);
-	Fl_Table::resize(X, Y, width + row_header_width() + 1, row_height(0) * (visible_rows_limit + 1));
+	Fl_Table::resize(x(), y(), width + row_header_width() + 1, row_height(0) * (visible_rows_limit + 1));
 }
 
 bool SQL_Table::change_page()
 {
 	if (!load_data())
 		return false;
-	optimal_size(x(), y(), visible_width);
+	optimal_size();
 	return true;
 }
 
@@ -145,7 +146,7 @@ int SQL_Table::handle(int event)
 
 SQL_Table::SQL_Table(int X, int Y, int W, int H, std::string_view sql_view_name, SQLite::Database& db)
 	: Fl_Table(X, Y, W, H, sql_view_name.data()), database(db)
-	, query(db, fmt::format("select * from \"{}\"", sql_view_name)), visible_width(W)
+	, query(db, fmt::format("select * from \"{}\"", sql_view_name))
 {
 	labeltype(Fl_Labeltype::FL_NO_LABEL);
 	clear_visible_focus(); //to_do
@@ -180,10 +181,9 @@ void SQL_Table::draw_cell(TableContext context, int R, int C, int X, int Y, int 
 
 void SQL_Table::resize(int X, int Y, int W, int H)
 {
+	Fl_Widget::resize(X, Y, W, H);
 	if (data.size())
-		optimal_size(X, Y, W);
-	else
-		Fl_Table::resize(X, Y, W, H);
+		optimal_size();
 }
 
 void SQL_Table::reload()

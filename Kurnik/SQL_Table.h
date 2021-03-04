@@ -10,13 +10,12 @@ class SQL_Table : public Fl_Table
 		rows_amount = 0,
 		offset = 0;
 	int
-		columns_amount = 0,
-		visible_width = 0;
+		columns_amount = 0;
 	unsigned short visible_rows_limit = 30;
 
 	long long count_rows();
 	bool load_data();
-	void optimal_size(int X, int Y, int width);
+	void optimal_size();
 	bool change_page();
 	void draw_cell(int R, int C, int X, int Y, int W, int H);
 	void draw_header(std::string_view s, int X, int Y, int W, int H);
