@@ -14,7 +14,7 @@ public:
 	}
 
 	Kurnik_App()
-		: database("Kurnik.db")
+		: database(":memory:")
 	{
 		auto path = std::filesystem::path("Kurnik.db");
 		try {
