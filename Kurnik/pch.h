@@ -1,19 +1,15 @@
 #pragma once
 #pragma warning(push)
-#pragma warning(disable : 26812)
-#pragma warning(disable : 6308)
-//FLTK
-#include <FL/Fl.H>
-#include "FL/Fl_Native_File_Chooser.H"
-#include <FL/Fl_Double_Window.H>
-#include <FL/Fl_Pack.H>
-#include <FL/Fl_Menu_Bar.H>
-#include <FL/Fl_Hold_Browser.H>
-#include <FL/Fl_Table.H>
-#include <FL/Fl_Button.H>
-#include <FL/Fl_Int_Input.H>
-#include <FL/fl_draw.H>
-#include <FL/fl_ask.H>
+#pragma warning(disable : 26812) // unscoped enum
+#pragma warning(disable : 26495) // uninitialized variable
+#pragma warning(disable : 26451) // arithmetic overflow
+#pragma warning(disable : 26439) // function may not throw
+//wxWidgets
+#pragma comment(lib, "comctl32.lib")
+#pragma comment(lib, "rpcrt4.lib")
+#include <wx/wx.h>
+#include <wx/dataview.h>
+#include <wx/notebook.h>
 //Other libs
 #include <fmt/format.h>
 #include <SQLiteCpp/SQLiteCpp.h>
@@ -23,5 +19,7 @@
 #include <fstream>
 #include <string>
 #include <string_view>
+#include <array>
+#include <map>
 #include <vector>
 #include <memory>

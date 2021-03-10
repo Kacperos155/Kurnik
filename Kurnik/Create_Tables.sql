@@ -11,7 +11,7 @@ const char* sql_create_table_buyers = R"_sql_(
 DROP TABLE IF EXISTS "Buyers";
 CREATE TABLE IF NOT EXISTS "Buyers" (
 	"ID" INTEGER PRIMARY KEY,
-   	"Name"  UNIQUE NOT NULL
+   	"Name" TEXT UNIQUE NOT NULL
 );
 )_sql_";
 

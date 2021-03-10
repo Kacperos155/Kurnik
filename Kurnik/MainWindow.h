@@ -2,23 +2,22 @@
 #include "pch.h"
 #include "SQL_Editor.h"
 
-class MainWindow : public Fl_Double_Window
+class MainWindow : public wxFrame
 {
-	int
-		width = 1000,
-		height = 1000;
+	SQLite::Database& database;
+	SQL_Editor* editor = nullptr;
 
-	SQLite::Database& db;
-	Fl_Menu_Bar menu{ 0, 0, width, 30 };
+	wxMenuBar* menu_bar = new wxMenuBar();
+	wxMenu* menu_file = new wxMenu();
+	wxMenu* menu_database = new wxMenu();
+	wxMenuItem* menu_export_csv = nullptr;
+	wxMenuItem* menu_import_csv = nullptr;
+	wxStatusBar* status_bar = nullptr;
 
-	std::unique_ptr<SQL_Editor> editor;
+	wxBoxSizer* main_vertical_sizer = new wxBoxSizer(wxVERTICAL);
 
-	int handle(int event) override;
 	void create_menu();
-	void change_editor(std::unique_ptr<SQL_Editor>&& new_editor);
-	bool exportCSV();
-	bool importCSV();
 public:
-	MainWindow(int W, int H, const char* title, SQLite::Database& db);
+	MainWindow(std::string_view title, SQLite::Database& database);
 };
 
