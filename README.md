@@ -13,6 +13,6 @@ Single file database CRUD (Create-Read-Update-Delete) **WIP** application, creat
 This repository is using **Visual Studio** project files and depends of **vcpkg packages** (x64-windows-static).
 
 ## Dependencies
-- [xWidgets](https://github.com/wxWidgets/wxWidgets) - Native looking cross-platfrom GUI
+- [wxWidgets](https://github.com/wxWidgets/wxWidgets) - Native looking cross-platfrom GUI
 - [FMT](https://github.com/fmtlib/fmt) - Very useful string formating
 - [SQLiteCpp](https://github.com/SRombauts/SQLiteCpp) - Easy to use C++ wrapper for SQLite3
