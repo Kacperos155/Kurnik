@@ -36,10 +36,19 @@
     <ClCompile Include="SQL_Editor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Collected_Eggs_Model.cpp">
+    <ClCompile Include="SQL table data models\Bought_Resources_Model.cpp">
       <Filter>Source Files\Models</Filter>
     </ClCompile>
-    <ClCompile Include="SQL_Data_Model.cpp">
+    <ClCompile Include="SQL table data models\Buyers_Model.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="SQL table data models\Collected_Eggs_Model.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="SQL table data models\Sold_Eggs_Model.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="SQL table data models\SQL_Data_Model.cpp">
       <Filter>Source Files\Models</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,10 +62,19 @@
     <ClInclude Include="SQL_Editor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SQL_Data_Model.h">
+    <ClInclude Include="SQL table data models\Bought_Resources_Model.h">
       <Filter>Header Files\Models</Filter>
     </ClInclude>
-    <ClInclude Include="Collected_Eggs_Model.h">
+    <ClInclude Include="SQL table data models\Buyers_Model.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="SQL table data models\Collected_Eggs_Model.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="SQL table data models\Sold_Eggs_Model.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="SQL table data models\SQL_Data_Model.h">
       <Filter>Header Files\Models</Filter>
     </ClInclude>
   </ItemGroup>

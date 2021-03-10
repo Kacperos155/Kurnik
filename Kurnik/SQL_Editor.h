@@ -1,12 +1,12 @@
 #pragma once
 #include "pch.h"
-#include "SQL_Data_Model.h"
+#include "SQL table data models/SQL_Data_Model.h"
 
 
 class SQL_Editor : public wxPanel
 {
 	SQLite::Database& database;
-	std::vector<SQL_Data_Model*> data_models;
+	std::unordered_map<std::string, SQL_Data_Model*> data_models;
 	SQL_Data_Model* active_data_model = nullptr;
 
 	wxBoxSizer* main_vertical_sizer = new wxBoxSizer(wxVERTICAL);

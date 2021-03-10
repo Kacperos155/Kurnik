@@ -1,7 +1,6 @@
 #pragma once
 #include "pch.h"
 #include "SQL_Editor.h"
-#include "Collected_Eggs_Model.h"
 
 class MainWindow : public wxFrame
 {
