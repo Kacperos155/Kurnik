@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 
-class SQL_Table : public Fl_Table
+class SQL_Table
 {
 	std::vector<std::string> data;
 	SQLite::Database& database;
@@ -17,13 +17,8 @@ class SQL_Table : public Fl_Table
 	bool load_data();
 	void optimal_size();
 	bool change_page();
-	void draw_cell(int R, int C, int X, int Y, int W, int H);
-	void draw_header(std::string_view s, int X, int Y, int W, int H);
-	int handle(int event) override;
 public:
-	SQL_Table(int X, int Y, int W, int H, std::string_view sql_view_name, SQLite::Database& db);
-	void draw_cell(TableContext context, int R = 0, int C = 0, int X = 0, int Y = 0, int W = 0, int H = 0) final;
-	void resize(int X, int Y, int W, int H) final;
+	SQL_Table(std::string_view sql_view_name, SQLite::Database& db);
 
 	void reload();
 	void set_visible_rows(unsigned short visible_rows);

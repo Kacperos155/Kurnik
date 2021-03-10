@@ -1,24 +1,19 @@
 #pragma once
 #include "pch.h"
 #include "SQL_Editor.h"
+#include "Collected_Eggs_Model.h"
 
-class MainWindow : public Fl_Double_Window
+class MainWindow : public wxFrame
 {
-	int
-		width = 1000,
-		height = 1000;
-
 	SQLite::Database& db;
-	Fl_Menu_Bar menu{ 0, 0, width, 30 };
+	SQL_Editor* editor = nullptr;
 
-	std::unique_ptr<SQL_Editor> editor;
+	wxMenuBar* menu_bar = new wxMenuBar();
+	wxMenu* menu_file = new wxMenu();
+	wxMenu* menu_database = new wxMenu();
 
-	int handle(int event) override;
 	void create_menu();
-	void change_editor(std::unique_ptr<SQL_Editor>&& new_editor);
-	bool exportCSV();
-	bool importCSV();
 public:
-	MainWindow(int W, int H, const char* title, SQLite::Database& db);
+	MainWindow(std::string_view title, SQLite::Database& db);
 };
 

@@ -1,66 +1,51 @@
 #include "pch.h"
 #include "MainWindow.h"
-#include "Editors/Editor_Bought_Resources.h"
-#include "Editors/Editor_Buyers.h"
-#include "Editors/Editor_Collected_Eggs.h"
-#include "Editors/Editor_Sold_Eggs.h"
-
-int MainWindow::handle(int event)
-{
-	/*if (event == FL_SHORTCUT && Fl::event_key() == FL_Escape)
-		return 1;*/
-	return Fl_Double_Window::handle(event);
-}
+//#include "Editors/Editor_Bought_Resources.h"
+//#include "Editors/Editor_Buyers.h"
+//#include "Editors/Editor_Collected_Eggs.h"
+//#include "Editors/Editor_Sold_Eggs.h"
 
 void MainWindow::create_menu()
 {
-	//menu.color(0xFFFFFFFF);
-	menu.box(Fl_Boxtype::FL_FLAT_BOX);
+	menu_file->Append(wxID_EXIT);
+	Bind(wxEVT_MENU, [&](wxCommandEvent&) {
+		Close(true);
+		}, GetId(), wxID_EXIT);
 
-	menu.add("File/Close", nullptr, [](Fl_Widget* w, void* v) {
-		reinterpret_cast<Fl_Double_Window*>(v)->hide();
-		}, this);
-	menu.add("_Database/&Export to CSV ", FL_CTRL + 'e', [](Fl_Widget* w, void* v) {
-		reinterpret_cast<MainWindow*>(v)->editor->export_CSV();
-		}, this);
-	menu.add("Database/&Import from CSV ", FL_CTRL + 'i', [](Fl_Widget* w, void* v) {
-		reinterpret_cast<MainWindow*>(v)->editor->import_CSV();
-		}, this);
+	auto* menu_export_csv = new wxMenuItem(nullptr, wxID_ANY, "&Export CSV");
+	menu_database->Append(menu_export_csv);
+	Bind(wxEVT_MENU, [&](wxCommandEvent&) {
+		if (editor != nullptr)
+			;//editor->export_CSV();
+		}, GetId(), menu_export_csv->GetId());
 
-	menu.add("Bought Resources", FL_CTRL + '1', [](Fl_Widget* w, void* v) {
-		auto* window = reinterpret_cast<MainWindow*>(v);
-		window->change_editor(std::make_unique<Editor_Bought_Resources>(0, 30, window->w(), window->h() - 30, window->db));
-		}, this);
-	menu.add("Buyers", FL_CTRL + '2', [](Fl_Widget* w, void* v) {
-		auto* window = reinterpret_cast<MainWindow*>(v);
-		window->change_editor(std::make_unique<Editor_Buyers>(0, 30, window->w(), window->h() - 30, window->db));
-		}, this);
-	menu.add("Collected Eggs", FL_CTRL + '3', [](Fl_Widget* w, void* v) {
-		auto* window = reinterpret_cast<MainWindow*>(v);
-		window->change_editor(std::make_unique<Editor_Collected_Eggs>(0, 30, window->w(), window->h() - 30, window->db));
-		}, this);
-	menu.add("Sold Eggs", FL_CTRL + '4', [](Fl_Widget* w, void* v) {
-		auto* window = reinterpret_cast<MainWindow*>(v);
-		window->change_editor(std::make_unique<Editor_Sold_Eggs>(0, 30, window->w(), window->h() - 30, window->db));
-		}, this);
+	auto* menu_import_csv = new wxMenuItem(nullptr, wxID_ANY, "&Import CSV");
+	menu_database->Append(menu_import_csv);
+	Bind(wxEVT_MENU, [&](wxCommandEvent&) {
+		if (editor != nullptr)
+			;//editor->import_CSV();
+		}, GetId(), menu_import_csv->GetId());
+
+	menu_bar->Append(menu_file, "&File");
+	menu_bar->Append(menu_database, "&Database");
+	SetMenuBar(menu_bar);
 }
 
-void MainWindow::change_editor(std::unique_ptr<SQL_Editor>&& new_editor)
+MainWindow::MainWindow(std::string_view title, SQLite::Database& db)
+	: wxFrame(nullptr, wxID_ANY, title.data()), db(db)
 {
-	auto widgets_array = Fl_Group::array();
-	remove(editor.get());
-	add(new_editor.get());
-	editor = std::move(new_editor);
-	resizable(editor.get());
-	redraw();
-}
-
-MainWindow::MainWindow(int W, int H, const char* title, SQLite::Database& db)
-	: Fl_Double_Window(W, H, title), width(W), height(H), db(db)
-{
+	Center();
 	create_menu();
-	Fl_Double_Window::size_range(600, 800);
-	resizable(this);
-	editor = std::make_unique<Editor_Collected_Eggs>(0, 30, W, H - 30, db);
-	resizable(editor.get());
+	auto view = new wxDataViewCtrl(this, -1, wxDefaultPosition, wxDefaultSize, wxDV_ROW_LINES | wxDV_VERT_RULES | wxDV_HORIZ_RULES);
+	view->SetMinSize(wxSize(400, 400));
+	auto data = new Collected_Eggs_Model("Collected Eggs", "Collected Eggs", db);
+
+	view->AssociateModel(data);
+	for (const auto& col : data->getColumns()) {
+		view->AppendColumn(col);
+	}
+	auto sizer = new wxBoxSizer(wxVERTICAL);
+	sizer->Add(view, wxSizerFlags(1).Expand().Border());
+
+	SetSizerAndFit(sizer);
 }

@@ -13,9 +13,6 @@ long long SQL_Table::count_rows()
 
 	rows_amount = rows_count_q.getColumn(0).getInt64();
 
-	rows(visible_rows_limit);
-	cols(columns_amount);
-
 	if (rows_amount <= visible_rows_limit)
 		change_page();
 	else
@@ -45,7 +42,7 @@ bool SQL_Table::load_data()
 
 void SQL_Table::optimal_size()
 {
-	auto width = w();
+	/*auto width = w();
 	fl_font(FL_HELVETICA + FL_BOLD, FL_NORMAL_SIZE);
 	{
 		auto max_row_index = offset + visible_rows_limit;
@@ -95,7 +92,7 @@ void SQL_Table::optimal_size()
 		col_width(i, column_width);
 	}
 	col_width(columns_amount - 1, width - used_width - 1);
-	Fl_Table::resize(x(), y(), width + row_header_width() + 1, row_height(0) * (visible_rows_limit + 1));
+	Fl_Table::resize(x(), y(), width + row_header_width() + 1, row_height(0) * (visible_rows_limit + 1));*/
 }
 
 bool SQL_Table::change_page()
@@ -106,91 +103,17 @@ bool SQL_Table::change_page()
 	return true;
 }
 
-void SQL_Table::draw_cell(int R, int C, int X, int Y, int W, int H)
-{
-	fl_push_clip(X, Y, W, H);
-	fl_color(28 + ((R % 2 == 1) ? 0 : 1));
-	fl_rectf(X, Y, W, H);
-
-	auto index = R * columns_amount + C;
-	if (index < data.size()) {
-		auto text = std::string_view(data[index]);
-		fl_color(FL_BLACK);
-		fl_draw(text.data(), X, Y, W, H, FL_ALIGN_CENTER);
-	}
-
-	fl_color(8);
-	fl_line(X + W - 1, Y, X + W - 1, Y + H);
-	fl_pop_clip();
-}
-
-void SQL_Table::draw_header(std::string_view s, int X, int Y, int W, int H)
-{
-	fl_font(fl_font() + FL_BOLD, FL_NORMAL_SIZE);
-	fl_push_clip(X, Y, W, H);
-	fl_draw_box(FL_THIN_UP_BOX, X, Y, W, H, row_header_color());
-	fl_color(FL_BLACK);
-
-	int row = -1;
-	std::from_chars(s.data(), s.data() + s.size(), row);
-	if (row < rows_amount)
-		fl_draw(s.data(), X, Y, W, H, FL_ALIGN_CENTER);
-	fl_pop_clip();
-	fl_font(fl_font() - FL_BOLD, FL_NORMAL_SIZE);
-}
-
-int SQL_Table::handle(int event)
-{
-	return Fl_Table::handle(event);
-}
-
-SQL_Table::SQL_Table(int X, int Y, int W, int H, std::string_view sql_view_name, SQLite::Database& db)
-	: Fl_Table(X, Y, W, H, sql_view_name.data()), database(db)
+SQL_Table::SQL_Table(std::string_view sql_view_name, SQLite::Database& db)
+	: database(db)
 	, query(db, fmt::format("select * from \"{}\"", sql_view_name))
 {
-	labeltype(Fl_Labeltype::FL_NO_LABEL);
-	clear_visible_focus(); //to_do
-	count_rows();
-	row_header(true);
-	row_resize(false);
-
-	col_header(true);
-	col_resize(true);
-	end();
-}
-
-void SQL_Table::draw_cell(TableContext context, int R, int C, int X, int Y, int W, int H)
-{
-	switch (context) {
-	case TableContext::CONTEXT_STARTPAGE:
-		fl_font(FL_HELVETICA, FL_NORMAL_SIZE);
-		return;
-	case TableContext::CONTEXT_CELL:
-		draw_cell(R, C, X, Y, W, H);
-		return;
-	case TableContext::CONTEXT_COL_HEADER:
-		draw_header(query.getColumnName(C), X, Y, W, H);
-		return;
-	case TableContext::CONTEXT_ROW_HEADER:
-		draw_header(std::to_string(R + offset), X, Y, W, H);
-		return;
-	default:
-		return;
-	}
-}
-
-void SQL_Table::resize(int X, int Y, int W, int H)
-{
-	Fl_Widget::resize(X, Y, W, H);
-	if (data.size())
-		optimal_size();
+	//count_rows();
 }
 
 void SQL_Table::reload()
 {
 	count_rows();
 	change_page();
-	redraw();
 }
 
 void SQL_Table::set_visible_rows(unsigned short visible_rows)
