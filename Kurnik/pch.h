@@ -9,6 +9,7 @@
 #pragma comment(lib, "rpcrt4.lib")
 #include <wx/wx.h>
 #include <wx/dataview.h>
+#include <wx/notebook.h>
 //Other libs
 #include <fmt/format.h>
 #include <SQLiteCpp/SQLiteCpp.h>

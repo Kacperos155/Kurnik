@@ -34,11 +34,11 @@ void MainWindow::create_menu()
 MainWindow::MainWindow(std::string_view title, SQLite::Database& database)
 	: wxFrame(nullptr, wxID_ANY, title.data()), database(database)
 {
-	Center();
 	create_menu();
 
 	editor = new SQL_Editor(this, database);
-	main_vertical_sizer->Add(editor, wxSizerFlags(1).Expand().Border());
+	main_vertical_sizer->Add(editor, wxSizerFlags(1).Expand());
 
 	SetSizerAndFit(main_vertical_sizer);
+	Center();
 }

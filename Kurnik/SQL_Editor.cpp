@@ -6,25 +6,10 @@
 #include "SQL table data models/Bought_Resources_Model.h"
 
 SQL_Editor::SQL_Editor(wxWindow* parent, SQLite::Database& database)
-	:wxPanel(parent), database(database)
+	:wxNotebook(parent, wxID_ANY), database(database)
 {
 	init_data_models();
-
-	data_view = new wxDataViewCtrl(this, -1, wxDefaultPosition, wxDefaultSize,
-		wxDV_ROW_LINES | wxDV_VERT_RULES | wxDV_HORIZ_RULES);
-	data_view->SetMinSize(wxSize(400, 400));
-
-	//active_data_model = data_models["Collected Eggs"];
-	//active_data_model = data_models["Sold Eggs"];
-	active_data_model = data_models["Buyers"];
-	//active_data_model = data_models["Bought Resources"];
-	data_view->AssociateModel(active_data_model);
-	for (const auto& col : active_data_model->getColumns()) {
-		data_view->AppendColumn(col);
-	}
-
-	main_vertical_sizer->Add(data_view, wxSizerFlags(1).Expand().Border());
-	SetSizerAndFit(main_vertical_sizer);
+	init_pages();
 }
 
 void SQL_Editor::init_data_models()
@@ -42,13 +27,40 @@ void SQL_Editor::init_data_models()
 	{
 		std::string_view table{ "Buyers" };
 		data_models.emplace(std::make_pair(table,
-			new Buyers_Model(table, "BuyersXD", database)));
+			new Buyers_Model(table, table, database)));
 	}
 	{
 		std::string_view table{ "Bought Resources" };
 		data_models.emplace(std::make_pair(table,
 			new Bought_Resources_Model(table, table, database)));
 	}
+}
+
+void SQL_Editor::init_pages()
+{
+	for (const auto& [model_name, model] : data_models) {
+		auto* panel = new wxPanel(this);
+		auto* data_view = new wxDataViewCtrl(panel, -1, wxDefaultPosition, wxDefaultSize,
+			wxDV_ROW_LINES | wxDV_VERT_RULES | wxDV_HORIZ_RULES);
+		data_view->SetMinSize(wxSize(600, 500));
+
+		data_view->AssociateModel(model);
+
+		for (const auto& col : model->getColumns()) {
+			data_view->AppendColumn(col);
+		}
+
+		auto* main_vertical_sizer = new wxBoxSizer(wxVERTICAL);
+		main_vertical_sizer->Add(data_view, wxSizerFlags(1).Expand());
+		panel->SetSizer(main_vertical_sizer);
+		panel->SetName(model_name);
+		AddPage(panel, model_name);
+	}
+
+	Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, [&](wxBookCtrlEvent& e) {
+		std::string page = GetCurrentPage()->GetName().ToStdString();
+		active_data_model = data_models[page];
+		});
 }
 
 void SQL_Editor::recreate_table()

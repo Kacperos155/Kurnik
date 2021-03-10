@@ -3,16 +3,14 @@
 #include "SQL table data models/SQL_Data_Model.h"
 
 
-class SQL_Editor : public wxPanel
+class SQL_Editor : public wxNotebook
 {
 	SQLite::Database& database;
 	std::unordered_map<std::string, SQL_Data_Model*> data_models;
 	SQL_Data_Model* active_data_model = nullptr;
 
-	wxBoxSizer* main_vertical_sizer = new wxBoxSizer(wxVERTICAL);
-	wxDataViewCtrl* data_view = nullptr;
-
 	void init_data_models();
+	void init_pages();
 	void recreate_table();
 	//GUI
 protected:

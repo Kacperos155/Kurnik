@@ -43,7 +43,7 @@ void SQL_Data_Model::fillCellValue(wxVariant& variant, std::string_view query) c
 			variant = result;
 	}
 	catch (std::exception e) {
-		variant = "*Wrong Column Type*";
+		variant = result;
 	}
 }
 
