@@ -5,15 +5,19 @@
 
 class MainWindow : public wxFrame
 {
-	SQLite::Database& db;
+	SQLite::Database& database;
 	SQL_Editor* editor = nullptr;
 
 	wxMenuBar* menu_bar = new wxMenuBar();
 	wxMenu* menu_file = new wxMenu();
 	wxMenu* menu_database = new wxMenu();
+	wxMenuItem* menu_export_csv = nullptr;
+	wxMenuItem* menu_import_csv = nullptr;
+
+	wxBoxSizer* main_vertical_sizer = new wxBoxSizer(wxVERTICAL);
 
 	void create_menu();
 public:
-	MainWindow(std::string_view title, SQLite::Database& db);
+	MainWindow(std::string_view title, SQLite::Database& database);
 };
 

@@ -1,24 +1,67 @@
 #include "pch.h"
 #include "SQL_Editor.h"
+#include "Collected_Eggs_Model.h"
 
 SQL_Editor::SQL_Editor(wxWindow* parent, SQLite::Database& database)
 	:wxPanel(parent), database(database)
 {
+	init_data_models();
+
+	data_view = new wxDataViewCtrl(this, -1, wxDefaultPosition, wxDefaultSize,
+		wxDV_ROW_LINES | wxDV_VERT_RULES | wxDV_HORIZ_RULES);
+	data_view->SetMinSize(wxSize(400, 400));
+
+	active_data_model = data_models[0];
+	data_view->AssociateModel(active_data_model);
+	for (const auto& col : active_data_model->getColumns()) {
+		data_view->AppendColumn(col);
+	}
+
+	main_vertical_sizer->Add(data_view, wxSizerFlags(1).Expand().Border());
+	SetSizerAndFit(main_vertical_sizer);
 }
 
-bool SQL_Editor::export_CSV(std::string_view values, int columns, char delimiter)
+void SQL_Editor::init_data_models()
 {
-	/*Fl_Native_File_Chooser file_chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
-	file_chooser.options(Fl_Native_File_Chooser::SAVEAS_CONFIRM);
-	file_chooser.title(fmt::format("{} - Export", sql_table_name).c_str());
-	auto default_file = fmt::format("{}.csv", sql_table_name);
-	file_chooser.preset_file(default_file.c_str());
-	file_chooser.filter("*.csv");
-	if (file_chooser.show() != 0)
+	data_models.reserve(1);
+
+	data_models.emplace_back(new Collected_Eggs_Model("Collected Eggs", "Collected Eggs", database));
+}
+
+void SQL_Editor::recreate_table()
+{
+/*	*/#include "Create_Tables.sql"
+	auto& table = active_data_model->getTableName();
+	auto check_table_sql = [&table](std::string_view sql) {
+		auto it = sql.find(table);
+		return (it != std::string_view::npos) ? true : false;
+	};
+
+	if (check_table_sql(sql_create_table_collected_eggs)) {
+		database.exec(sql_create_table_collected_eggs);
+	}
+	else if (check_table_sql(sql_create_table_sold_eggs)) {
+		database.exec(sql_create_table_sold_eggs);
+	}
+	else if (check_table_sql(sql_create_table_buyers)) {
+		database.exec(sql_create_table_buyers);
+	}
+	else if (check_table_sql(sql_create_table_bought_resources)) {
+		database.exec(sql_create_table_bought_resources);
+	}
+}
+
+bool SQL_Editor::export_CSV(char delimiter)
+{
+	auto table_name = active_data_model->getTableName().data();
+	auto file_chooser = wxFileDialog(this, fmt::format("{} - Export", table_name), "",
+		table_name, "*.csv", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+	if (file_chooser.ShowModal() == wxID_CANCEL)
 		return false;
 
-	auto statement = fmt::format("select {} from \"{}\";", values, sql_table_name);
-	std::ofstream file(file_chooser.filename());
+	auto statement = fmt::format("select * from \"{}\";", table_name);
+	std::ofstream file(file_chooser.GetPath().ToStdString());
 	if (!file.is_open())
 		return false;
 
@@ -27,7 +70,7 @@ bool SQL_Editor::export_CSV(std::string_view values, int columns, char delimiter
 
 	for (int i = 0; i < columns_amount; ++i) {
 		if (i != 0)
-			file << ';';
+			file << delimiter;
 		file << query.getColumnName(i);
 	}
 
@@ -35,48 +78,67 @@ bool SQL_Editor::export_CSV(std::string_view values, int columns, char delimiter
 		file << '\n';
 		for (int i = 0; i < columns_amount; ++i) {
 			if (i != 0)
-				file << ';';
+				file << delimiter;
 			file << query.getColumn(i);
 		}
-	}*/
+	}
 	return true;
 }
 
-bool SQL_Editor::import_CSV(std::string_view values, int columns, char delimiter)
+bool SQL_Editor::import_CSV(char delimiter)
 {
-	/*Fl_Native_File_Chooser file_chooser(Fl_Native_File_Chooser::BROWSE_FILE);
-	file_chooser.title(fmt::format("{} - Import", sql_table_name).c_str());
-	auto default_file = fmt::format("{}.csv", sql_table_name);
-	file_chooser.preset_file(default_file.c_str());
-	file_chooser.filter("*.csv");
-	if (file_chooser.show() != 0)
+	auto table_name = active_data_model->getTableName().data();
+	auto file_chooser = wxFileDialog(this, fmt::format("{} - Export", table_name), "",
+		table_name, "*.csv", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+	if (file_chooser.ShowModal() == wxID_CANCEL)
 		return false;
 
-	auto statement = fmt::format("Insert into \"{}\" ({}) VALUES (", sql_table_name, values);
-	for (int i = 0; i < columns - 1; ++i)
+	std::string values{};
+	auto columns_amount = 0;
+	try
+	{
+		auto columns = SQLite::Statement(database, fmt::format("select * from \"{}\"", table_name));
+		columns_amount = columns.getColumnCount();
+		values = columns.getColumnName(0);
+		for (int i = 1; i < columns.getColumnCount(); ++i) {
+			values += fmt::format(", \"{}\"", columns.getColumnName(i));
+		}
+	}
+	catch (std::exception e) {
+		wxMessageBox(e.what());
+	}
+
+	auto statement = fmt::format("Insert into \"{}\" ({}) VALUES (", table_name, values);
+	for (int i = 0; i < columns_amount - 1; ++i)
 		statement += "?, ";
 	statement += "?);";
 
-	std::ifstream file(file_chooser.filename());
+	std::ifstream file(file_chooser.GetPath().ToStdString());
 	if (!file.is_open())
 		return false;
 
-	recreate_table();
 	SQLite::Transaction T(database);
+	recreate_table();
 	std::string line;
 
 	for (std::getline(file, line); std::getline(file, line) && line.size();) {
 		SQLite::Statement insert(database, statement);
 
 		auto end = size_t{ 0 };
-		for (int i = 1; i <= columns; ++i) {
+		for (int i = 1; i <= columns_amount; ++i) {
 			auto start = end + ((i != 1) ? 1 : 0);
 			end = line.find_first_of(delimiter, start);
 			insert.bind(i, line.substr(start, end - start));
 		}
-		insert.exec();
+		try {
+			insert.exec();
+		}
+		catch (std::exception e) {
+			wxMessageBox(e.what());
+		}
 	}
 	T.commit();
-	database_view.reload();*/
+	active_data_model->Reset();
 	return true;
 }
