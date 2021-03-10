@@ -5,14 +5,14 @@ class SQL_Data_Model : public wxDataViewVirtualListModel
 	std::vector<wxDataViewColumn*> view_columns;
 
 	void initColumns();
-	const unsigned getRowsAmount();
+	const unsigned calcRowsAmount();
 
 protected:
 	SQLite::Database& database;
 	std::string_view
 		table,
 		view;
-	unsigned int rows_amount = getRowsAmount();
+	unsigned int rows_amount = calcRowsAmount();
 
 	void fillCellValue(wxVariant& variant, std::string_view query) const;
 
@@ -21,6 +21,7 @@ public:
 	const std::vector<wxDataViewColumn*>& getColumns() const;
 	const std::string_view getTableName() const;
 	const std::string_view getViewName() const;
+	const unsigned getRowsAmount() const;
 	void Reset();
 
 	// Inherited via wxDataViewVirtualListModel

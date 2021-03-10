@@ -8,7 +8,7 @@ SQL_Data_Model::SQL_Data_Model(const std::string_view table, const std::string_v
 	wxDataViewVirtualListModel::Reset(rows_amount);
 }
 
-const unsigned SQL_Data_Model::getRowsAmount()
+const unsigned SQL_Data_Model::calcRowsAmount()
 {
 	auto query_string = fmt::format("select count(*) from \"{}\"", view);
 	SQLite::Statement query(database, query_string);
@@ -62,9 +62,14 @@ const std::string_view SQL_Data_Model::getViewName() const
 	return view;
 }
 
+const unsigned SQL_Data_Model::getRowsAmount() const
+{
+	return rows_amount;
+}
+
 void SQL_Data_Model::Reset()
 {
-	rows_amount = getRowsAmount();
+	rows_amount = calcRowsAmount();
 	wxDataViewVirtualListModel::Reset(rows_amount);
 }
 

@@ -40,5 +40,7 @@ MainWindow::MainWindow(std::string_view title, SQLite::Database& database)
 	main_vertical_sizer->Add(editor, wxSizerFlags(1).Expand());
 
 	SetSizerAndFit(main_vertical_sizer);
+	status_bar = CreateStatusBar();
 	Center();
+	SetFocus();
 }

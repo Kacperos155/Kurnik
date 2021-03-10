@@ -12,6 +12,7 @@ class MainWindow : public wxFrame
 	wxMenu* menu_database = new wxMenu();
 	wxMenuItem* menu_export_csv = nullptr;
 	wxMenuItem* menu_import_csv = nullptr;
+	wxStatusBar* status_bar = nullptr;
 
 	wxBoxSizer* main_vertical_sizer = new wxBoxSizer(wxVERTICAL);
 

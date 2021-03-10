@@ -10,6 +10,7 @@ SQL_Editor::SQL_Editor(wxWindow* parent, SQLite::Database& database)
 {
 	init_data_models();
 	init_pages();
+	wxPostEvent(this, wxBookCtrlEvent(wxEVT_NOTEBOOK_PAGE_CHANGED));
 }
 
 void SQL_Editor::init_data_models()
@@ -60,6 +61,8 @@ void SQL_Editor::init_pages()
 	Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, [&](wxBookCtrlEvent& e) {
 		std::string page = GetCurrentPage()->GetName().ToStdString();
 		active_data_model = data_models[page];
+		auto status = fmt::format("Selected view: {} - {} rows", page, data_models[page]->getRowsAmount());
+		static_cast<wxFrame*>(GetParent())->SetStatusText(status);
 		});
 }
 
@@ -88,6 +91,8 @@ void SQL_Editor::recreate_table()
 
 bool SQL_Editor::export_CSV(char delimiter)
 {
+	if (active_data_model == nullptr)
+		return false;
 	auto table_name = active_data_model->getTableName().data();
 	auto file_chooser = wxFileDialog(this, fmt::format("{} - Export", table_name), "",
 		table_name, "*.csv", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
@@ -122,6 +127,8 @@ bool SQL_Editor::export_CSV(char delimiter)
 
 bool SQL_Editor::import_CSV(char delimiter)
 {
+	if (active_data_model == nullptr)
+		return false;
 	auto table_name = active_data_model->getTableName().data();
 	auto file_chooser = wxFileDialog(this, fmt::format("{} - Export", table_name), "",
 		table_name, "*.csv", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
