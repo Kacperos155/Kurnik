@@ -36,11 +36,15 @@ void SQL_Data_Model::fillCellValue(wxVariant& variant, std::string_view query) c
 	SQLite::Statement query_statement(database, query.data());
 	query_statement.executeStep();
 	wxString result = query_statement.getColumn(0).getText();
-	auto lel = variant.GetType();
-	if (query_statement.getColumnDeclaredType(0) == std::string_view("BLOB"))
-		variant = "...BLOB...";
-	else
-		variant = result.GetData().AsChar();
+	try {
+		if (query_statement.getColumnDeclaredType(0) == std::string_view("BLOB"))
+			variant = "...BLOB...";
+		else
+			variant = result;
+	}
+	catch (std::exception e) {
+		variant = "*Wrong Column Type*";
+	}
 }
 
 const std::vector<wxDataViewColumn*>& SQL_Data_Model::getColumns() const

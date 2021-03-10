@@ -8,6 +8,9 @@ public:
 	bool OnInit() override {
 		if (!database_connection_good)
 			return false;
+#ifdef _DEBUG
+		auto* log = new wxLogWindow(nullptr, "Log");
+#endif // _DEBUG
 		auto* MW = new MainWindow("Kurnik", database);
 		MW->Show();
 		return true;

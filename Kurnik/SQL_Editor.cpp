@@ -15,8 +15,8 @@ SQL_Editor::SQL_Editor(wxWindow* parent, SQLite::Database& database)
 	data_view->SetMinSize(wxSize(400, 400));
 
 	//active_data_model = data_models["Collected Eggs"];
-	active_data_model = data_models["Sold Eggs"];
-	//active_data_model = data_models["Buyers"];
+	//active_data_model = data_models["Sold Eggs"];
+	active_data_model = data_models["Buyers"];
 	//active_data_model = data_models["Bought Resources"];
 	data_view->AssociateModel(active_data_model);
 	for (const auto& col : active_data_model->getColumns()) {
@@ -37,17 +37,17 @@ void SQL_Editor::init_data_models()
 	{
 		std::string_view table{ "Sold Eggs" };
 		data_models.emplace(std::make_pair(table,
-			new Collected_Eggs_Model(table, "Sold Eggs + Buyers", database)));
+			new Sold_Eggs_Model(table, "Sold Eggs + Buyers", database)));
 	}
 	{
 		std::string_view table{ "Buyers" };
 		data_models.emplace(std::make_pair(table,
-			new Collected_Eggs_Model(table, table, database)));
+			new Buyers_Model(table, "BuyersXD", database)));
 	}
 	{
 		std::string_view table{ "Bought Resources" };
 		data_models.emplace(std::make_pair(table,
-			new Collected_Eggs_Model(table, table, database)));
+			new Bought_Resources_Model(table, table, database)));
 	}
 }
 
