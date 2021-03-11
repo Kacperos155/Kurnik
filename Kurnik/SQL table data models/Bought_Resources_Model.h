@@ -6,6 +6,7 @@ class Bought_Resources_Model : public SQL_Data_Model
 {
 public:
 	Bought_Resources_Model(const std::string_view table, const std::string_view view, SQLite::Database& database);
+	wxSizer* create_inputs(wxWindow* parent) const override;
 
 	// Inherited via wxDataViewVirtualListModel
 	bool SetValueByRow(const wxVariant& variant, unsigned row, unsigned col) override;

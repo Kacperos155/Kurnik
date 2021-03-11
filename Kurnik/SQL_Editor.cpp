@@ -55,6 +55,13 @@ void SQL_Editor::init_pages()
 		main_vertical_sizer->Add(data_view, wxSizerFlags(1).Expand());
 		panel->SetSizer(main_vertical_sizer);
 		panel->SetName(model_name);
+
+		main_vertical_sizer->Add(model->create_inputs(panel), wxSizerFlags().Expand().Center());
+		auto* buttons_sizer = new wxBoxSizer(wxHORIZONTAL);
+		buttons_sizer->Add(new wxButton(panel, wxID_ADD));
+		buttons_sizer->Add(new wxButton(panel, wxID_SAVE));
+		buttons_sizer->Add(new wxButton(panel, wxID_CANCEL));
+		main_vertical_sizer->Add(buttons_sizer, wxSizerFlags().Right());
 		AddPage(panel, model_name);
 	}
 

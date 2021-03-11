@@ -7,6 +7,11 @@ Sold_Eggs_Model::Sold_Eggs_Model(const std::string_view table, const std::string
     ;
 }
 
+wxSizer* Sold_Eggs_Model::create_inputs(wxWindow* parent) const
+{
+    return inputs_sizer;
+}
+
 bool Sold_Eggs_Model::SetValueByRow(const wxVariant& variant, unsigned row, unsigned col)
 {
     return false;

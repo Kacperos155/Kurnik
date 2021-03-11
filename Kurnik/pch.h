@@ -10,6 +10,8 @@
 #include <wx/wx.h>
 #include <wx/dataview.h>
 #include <wx/notebook.h>
+#include <wx/calctrl.h>
+#include <wx/spinctrl.h>
 //Other libs
 #include <fmt/format.h>
 #include <SQLiteCpp/SQLiteCpp.h>

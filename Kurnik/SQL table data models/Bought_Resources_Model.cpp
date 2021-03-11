@@ -7,6 +7,11 @@ Bought_Resources_Model::Bought_Resources_Model(const std::string_view table, con
     ;
 }
 
+wxSizer* Bought_Resources_Model::create_inputs(wxWindow* parent) const
+{
+    return inputs_sizer;
+}
+
 bool Bought_Resources_Model::SetValueByRow(const wxVariant& variant, unsigned row, unsigned col)
 {
     return false;

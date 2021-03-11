@@ -13,8 +13,10 @@ protected:
 		table,
 		view;
 	unsigned int rows_amount = calcRowsAmount();
+	wxFlexGridSizer* inputs_sizer = nullptr;
 
 	void fillCellValue(wxVariant& variant, std::string_view query) const;
+	
 
 public:
 	SQL_Data_Model(const std::string_view table, const std::string_view view, SQLite::Database& database);
@@ -23,6 +25,7 @@ public:
 	const std::string_view getViewName() const;
 	const unsigned getRowsAmount() const;
 	void Reset();
+	virtual wxSizer* create_inputs(wxWindow* parent) const = 0;
 
 	// Inherited via wxDataViewVirtualListModel
 	unsigned int GetColumnCount() const override;

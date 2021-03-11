@@ -6,6 +6,8 @@ SQL_Data_Model::SQL_Data_Model(const std::string_view table, const std::string_v
 {
 	initColumns();
 	wxDataViewVirtualListModel::Reset(rows_amount);
+	inputs_sizer = new wxFlexGridSizer(2, view_columns.size(), 0, 10);
+	inputs_sizer->SetFlexibleDirection(wxVERTICAL);
 }
 
 const unsigned SQL_Data_Model::calcRowsAmount()
