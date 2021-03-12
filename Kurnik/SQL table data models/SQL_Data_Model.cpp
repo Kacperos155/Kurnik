@@ -79,8 +79,8 @@ bool SQL_Data_Model::updateSelectedRow_(std::string&& changes)
 		if (!database.exec(to_update))
 			return false;
 	}
-	catch (std::exception e) {
-		SQL_Error(e);
+	catch (SQLite::Exception exception) {
+		SQL_Error(exception);
 		return false;
 	}
 	Reset();
@@ -137,8 +137,8 @@ bool SQL_Data_Model::deleteSelectedRow()
 		if (!database.exec(to_delete))
 			return false;
 	}
-	catch (std::exception e) {
-		SQL_Error(e);
+	catch (SQLite::Exception exception) {
+		SQL_Error(exception);
 		return false;
 	}
 	--rows_amount;
@@ -169,19 +169,13 @@ void SQL_Data_Model::GetValueByRow(wxVariant& variant, unsigned row, unsigned co
 		SQLite::Statement statement(database, query.data());
 		statement.executeStep();
 		wxString result = statement.getColumn(0).getText();
-		try {
-			if (statement.getColumnDeclaredType(0) == std::string_view("BLOB"))
-				variant = "...BLOB...";
-			else
-				variant = result;
-		}
-		catch (std::exception e) {
-			variant = "";
-			return;
-		}
+		if(statement.getColumn(0).isBlob())
+			variant = "...BLOB...";
+		else
+			variant = result;
 	}
-	catch (std::exception e) {
-		SQL_Error(e);
+	catch (SQLite::Exception exception) {
+		SQL_Error(exception);
 	}
 }
 
@@ -190,7 +184,7 @@ bool SQL_Data_Model::SetValueByRow(const wxVariant& variant, unsigned row, unsig
 	return false;
 }
 
-void SQL_Data_Model::SQL_Error(std::exception& e) noexcept
+void SQL_Data_Model::SQL_Error(SQLite::Exception exception) noexcept
 {
-	wxMessageBox(e.what(), "SQL Error", wxICON_ERROR);
+	wxMessageBox(exception.what(), "SQL Error", wxICON_ERROR);
 }

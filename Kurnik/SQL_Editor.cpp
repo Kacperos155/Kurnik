@@ -164,8 +164,8 @@ bool SQL_Editor::export_CSV(char delimiter)
 			}
 		}
 	}
-	catch (std::exception e) {
-		SQL_Data_Model::SQL_Error(e);
+	catch (SQLite::Exception exception) {
+		SQL_Data_Model::SQL_Error(exception);
 	}
 	return true;
 }
@@ -192,8 +192,8 @@ bool SQL_Editor::import_CSV(char delimiter)
 			values += fmt::format(", \"{}\"", columns.getColumnName(i));
 		}
 	}
-	catch (std::exception e) {
-		SQL_Data_Model::SQL_Error(e);
+	catch (SQLite::Exception exception) {
+		SQL_Data_Model::SQL_Error(exception);
 	}
 
 	auto statement = fmt::format("Insert into \"{}\" ({}) VALUES (", table_name, std::move(values));
@@ -223,8 +223,8 @@ bool SQL_Editor::import_CSV(char delimiter)
 		try {
 			insert.exec();
 		}
-		catch (std::exception e) {
-			SQL_Data_Model::SQL_Error(e);
+		catch (SQLite::Exception exception) {
+			SQL_Data_Model::SQL_Error(exception);
 		}
 	}
 	T.commit();

@@ -41,6 +41,6 @@ public:
 	void GetValueByRow(wxVariant& variant, unsigned row, unsigned col) const override;
 	bool SetValueByRow(const wxVariant& variant, unsigned row, unsigned col) override;
 
-	static void SQL_Error(std::exception& e) noexcept;
+	static void SQL_Error(SQLite::Exception exception) noexcept;
 };
 

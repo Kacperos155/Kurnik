@@ -55,8 +55,8 @@ bool Collected_Eggs_Model::addRow()
 		wxLogInfo(statement.getExpandedSQL().c_str());
 		statement.exec();
 	}
-	catch (std::exception e) {
-		SQL_Error(e);
+	catch (SQLite::Exception exception) {
+		SQL_Error(exception);
 		return false;
 	}
 	++rows_amount;
@@ -98,17 +98,14 @@ bool Collected_Eggs_Model::loadFromSelection()
 		auto date = wxDateTime();
 		if(date.ParseISODate(date_string.data()))
 			date_input->SetDate(std::move(date));
-		/*date.SetYear(string_view_to_short(date_string.substr(0, 4)));
-		date.SetMonth(string_view_to_short(reinterpret_cast<wxDateTime::Month>(date_string.substr(0, 4))));
-		date.SetDay(string_view_to_short(date_string.substr(0, 4)));*/
 
 		if (!statement.getColumn(1).isNull())
 			eggs_input->SetValue(statement.getColumn(1).getInt());
 		if (!statement.getColumn(2).isNull())
 			small_eggs_input->SetValue(statement.getColumn(2).getInt());
 	}
-	catch (std::exception e) {
-		SQL_Error(e);
+	catch (SQLite::Exception exception) {
+		SQL_Error(exception);
 	}
 
 	return true;
