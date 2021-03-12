@@ -1,7 +1,7 @@
 # Kurnik - FLTK
 Abandoned branch of Kurnik app using FLTK.
 
-![screenshot](https://github.com/Kacperos155/Kurnik/blob/master/Resources/Kurnik%20-%2012%20March%202021.png)
+![screenshot](https://github.com/Kacperos155/Kurnik/blob/FLTK/Screenshot.png)
 
 ## Building
 This repository is using **Visual Studio** project files and depends of **vcpkg packages** (x64-windows-static).
