@@ -17,10 +17,12 @@
 #include <SQLiteCpp/SQLiteCpp.h>
 #pragma warning(pop)
 //STL
+#include <limits>
 #include <filesystem>
 #include <fstream>
 #include <string>
 #include <string_view>
+#include <charconv>
 #include <array>
 #include <map>
 #include <vector>

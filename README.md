@@ -1,7 +1,7 @@
 # Kurnik
 Single file database CRUD (Create-Read-Update-Delete) **WIP** application, created for manage eggs selling and everyday gathering.
 
-![screenshot](https://github.com/Kacperos155/Kurnik/blob/master/Resources/Kurnik%20-%2010%20March%202021.png)
+![screenshot](https://github.com/Kacperos155/Kurnik/blob/master/Resources/Kurnik%20-%2012%20March%202021.png)
 
 ## To do:
 - Data Input

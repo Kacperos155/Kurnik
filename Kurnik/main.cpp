@@ -10,9 +10,12 @@ public:
 			return false;
 #ifdef _DEBUG
 		auto* log = new wxLogWindow(nullptr, "Log");
+		log->PassMessages(false);
 #endif // _DEBUG
+		auto* log = new wxLogChain(nullptr);
 		auto* MW = new MainWindow("Kurnik", database);
 		MW->Show();
+		log->PassMessages(false);
 		return true;
 	}
 

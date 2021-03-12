@@ -11,6 +11,7 @@ class SQL_Editor : public wxNotebook
 
 	void init_data_models();
 	void init_pages();
+	wxSizer* init_buttons(wxPanel* parent, SQL_Data_Model* data_model);
 	void recreate_table();
 	//GUI
 protected:

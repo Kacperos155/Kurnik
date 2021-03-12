@@ -1,18 +1,30 @@
 #include "../pch.h"
 #include "Bought_Resources_Model.h"
 
-Bought_Resources_Model::Bought_Resources_Model(const std::string_view table, const std::string_view view, SQLite::Database& database)
-    : SQL_Data_Model(table, view, database)
-{
-    ;
-}
+Bought_Resources_Model::Bought_Resources_Model(SQLite::Database& database)
+    : SQL_Data_Model("Bought Resources", "Bought Resources", database) {}
 
-wxSizer* Bought_Resources_Model::create_inputs(wxWindow* parent) const
+wxSizer* Bought_Resources_Model::create_inputs(wxWindow* parent)
 {
     return inputs_sizer;
 }
 
-bool Bought_Resources_Model::SetValueByRow(const wxVariant& variant, unsigned row, unsigned col)
+bool Bought_Resources_Model::reset_input()
+{
+    return false;
+}
+
+bool Bought_Resources_Model::addRow()
+{
+    return false;
+}
+
+bool Bought_Resources_Model::updateSelectedRow()
+{
+    return false;
+}
+
+bool Bought_Resources_Model::loadFromSelection()
 {
     return false;
 }
