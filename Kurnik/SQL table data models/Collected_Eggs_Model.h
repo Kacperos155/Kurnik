@@ -5,14 +5,15 @@
 class Collected_Eggs_Model : public SQL_Data_Model
 {
 	wxCalendarCtrl* date_input = nullptr;
-	wxSpinCtrl* eggs_input = nullptr;
-	wxSpinCtrl* small_eggs_input = nullptr;
+	wxSpinCtrl
+		* eggs_input = nullptr,
+		* small_eggs_input = nullptr;
+
 public:
 	Collected_Eggs_Model(SQLite::Database& database);
 	wxSizer* create_inputs(wxWindow* parent) override;
+	bool read_inputs() override;
 	bool reset_input() override;
-	bool addRow() override;
-	bool updateSelectedRow() override;
 	bool loadFromSelection() override;
 };
 

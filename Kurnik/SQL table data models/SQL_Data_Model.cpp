@@ -21,8 +21,7 @@ const unsigned SQL_Data_Model::calcRowsAmount()
 
 void SQL_Data_Model::initColumns()
 {
-	auto query = fmt::format("select * from \"{}\"", view);
-	SQLite::Statement query_statement(database, query);
+	SQLite::Statement query_statement(database, fmt::format("select * from \"{}\"", view));
 
 	auto columns_count = query_statement.getColumnCount();
 	view_columns.reserve(columns_count);
@@ -32,11 +31,12 @@ void SQL_Data_Model::initColumns()
 		auto& col = view_columns.emplace_back(new wxDataViewColumn(title, text_renderer, i));
 		col->SetMinWidth(wxDVC_DEFAULT_WIDTH);
 	}
+	key_value_changes.reserve(columns_count);
 }
 
 /*!
  * @brief Runs SQL SELECT on row
- * @param row: Table row in descenting order
+ * @param row: Table row in descending order
  * @return Pair of std::string. {
  * row as SQL WHERE conditions;
  * column name: value keys }
@@ -65,26 +65,20 @@ const std::pair<std::string, std::string> SQL_Data_Model::getRowValues(unsigned 
 	return std::make_pair(sql_where, columns_value_pairs);
 }
 
-bool SQL_Data_Model::updateSelectedRow_(std::string&& changes)
+void SQL_Data_Model::prepareChange(std::string&& key, std::string&& value)
 {
-	if (selected_row == std::numeric_limits<unsigned>::max())
-		return false;
-	try {
-		auto [to_update, confirmation] = getRowValues();
-		to_update = fmt::format(R"(UPDATE "{}" SET {} {})", table, changes, std::move(to_update));
-		confirmation = fmt::format("Do you realy want to update row {}?\n{}\n\nto:\n{}", selected_row, std::move(confirmation), changes);
-		if (wxNO == wxMessageBox(confirmation, "Update Confirmation", wxYES_NO | wxICON_WARNING | wxNO_DEFAULT))
-			return false;
-		wxLogInfo(to_update.c_str());
-		if (!database.exec(to_update))
-			return false;
-	}
-	catch (SQLite::Exception exception) {
-		SQL_Error(exception);
-		return false;
-	}
-	Reset();
-	return true;
+	key_value_changes.push_back(std::make_pair(std::move(key), std::move(value)));
+}
+
+void SQL_Data_Model::prepareChange_ISO_Date(std::string&& key, wxDateTime&& iso_date)
+{
+	auto date_str = fmt::format("{}-{:0>2}-{:0>2}", iso_date.GetYear(), iso_date.GetMonth() + 1, iso_date.GetDay());
+	prepareChange(std::move(key), std::move(date_str));
+}
+
+void SQL_Data_Model::prepareChange_NULL(std::string&& key)
+{
+	key_value_changes.push_back(std::make_pair(std::move(key), std::string{}));
 }
 
 const std::vector<wxDataViewColumn*>& SQL_Data_Model::getColumns() const
@@ -123,6 +117,78 @@ bool SQL_Data_Model::selectRow(unsigned int row)
 	return true;
 }
 
+bool SQL_Data_Model::addRow()
+{
+	if (!read_inputs())
+		return false;
+
+	auto columns = fmt::format("\"{}\"", key_value_changes[0].first);
+	auto values = fmt::format("'{}'", key_value_changes[0].second);
+	for (auto it = std::next(key_value_changes.begin()); it != key_value_changes.end(); ++it) {
+		columns += fmt::format(",\"{}\"", std::move(it->first));
+		if (it->second.empty())
+			values += fmt::format(", NULL", std::move(it->second));
+		else
+			values += fmt::format(",'{}'", std::move(it->second));
+	}
+	key_value_changes.clear();
+
+	try {
+		auto statement = SQLite::Statement(database, fmt::format(R"(INSERT INTO "{}"({}) VALUES ({});)", table, std::move(columns), std::move(values)));
+		wxLogInfo(statement.getExpandedSQL().c_str());
+		statement.exec();
+	}
+	catch (SQLite::Exception exception) {
+		SQL_Error(exception);
+		return false;
+	}
+	++rows_amount;
+	Reset();
+	return true;
+}
+
+bool SQL_Data_Model::updateSelectedRow()
+{
+	if (!read_inputs())
+		return false;
+
+	if (selected_row == std::numeric_limits<unsigned>::max())
+		return false;
+
+	if (key_value_changes.size() == 0)
+		return false;
+
+	auto changes = fmt::format("\"{}\" = '{}'", key_value_changes[0].first, key_value_changes[0].second);
+	for (auto it = std::next(key_value_changes.cbegin()); it != key_value_changes.cend(); ++it) {
+		if (it->second.empty())
+			changes += fmt::format(",\n\"{}\" = NULL", it->first);
+		else
+			changes += fmt::format(",\n\"{}\" = '{}'", it->first, it->second);
+	}
+
+	try {
+		auto [to_update, confirmation] = getRowValues();
+		to_update = fmt::format(R"(UPDATE "{}" SET {} {})", table, changes, std::move(to_update));
+		confirmation = fmt::format("Do you realy want to update row {}?\n{}\n\nTO\n", selected_row, std::move(confirmation));
+		for (auto& change : key_value_changes) {
+			confirmation += fmt::format("\n{}: {}", std::move(change.first), std::move(change.second));
+		}
+
+		key_value_changes.clear();
+		if (wxNO == wxMessageBox(std::move(confirmation), "Update Confirmation", wxYES_NO | wxICON_WARNING | wxNO_DEFAULT))
+			return false;
+		wxLogInfo(to_update.c_str());
+		if (!database.exec(std::move(to_update)))
+			return false;
+	}
+	catch (SQLite::Exception exception) {
+		SQL_Error(exception);
+		return false;
+	}
+	Reset();
+	return true;
+}
+
 bool SQL_Data_Model::deleteSelectedRow()
 {
 	if (selected_row == std::numeric_limits<unsigned>::max())
@@ -131,10 +197,10 @@ bool SQL_Data_Model::deleteSelectedRow()
 		auto [to_delete, confirmation] = getRowValues();
 		to_delete = fmt::format(R"(DELETE FROM "{}" {})", table, std::move(to_delete));
 		confirmation = fmt::format("Do you realy want to delete row {}?\n{}", selected_row, std::move(confirmation));
-		if (wxNO == wxMessageBox(confirmation, "Delete Confirmation", wxYES_NO | wxICON_WARNING | wxNO_DEFAULT))
+		if (wxNO == wxMessageBox(std::move(confirmation), "Delete Confirmation", wxYES_NO | wxICON_WARNING | wxNO_DEFAULT))
 			return false;
 		wxLogInfo(to_delete.c_str());
-		if (!database.exec(to_delete))
+		if (!database.exec(std::move(to_delete)))
 			return false;
 	}
 	catch (SQLite::Exception exception) {
@@ -169,7 +235,7 @@ void SQL_Data_Model::GetValueByRow(wxVariant& variant, unsigned row, unsigned co
 		SQLite::Statement statement(database, query.data());
 		statement.executeStep();
 		wxString result = statement.getColumn(0).getText();
-		if(statement.getColumn(0).isBlob())
+		if (statement.getColumn(0).isBlob())
 			variant = "...BLOB...";
 		else
 			variant = result;

@@ -9,17 +9,12 @@ wxSizer* Buyers_Model::create_inputs(wxWindow* parent)
     return inputs_sizer;
 }
 
+bool Buyers_Model::read_inputs()
+{
+    return false;
+}
+
 bool Buyers_Model::reset_input()
-{
-    return false;
-}
-
-bool Buyers_Model::addRow()
-{
-    return false;
-}
-
-bool Buyers_Model::updateSelectedRow()
 {
     return false;
 }

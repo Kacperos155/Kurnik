@@ -9,17 +9,12 @@ wxSizer* Bought_Resources_Model::create_inputs(wxWindow* parent)
     return inputs_sizer;
 }
 
+bool Bought_Resources_Model::read_inputs()
+{
+    return false;
+}
+
 bool Bought_Resources_Model::reset_input()
-{
-    return false;
-}
-
-bool Bought_Resources_Model::addRow()
-{
-    return false;
-}
-
-bool Bought_Resources_Model::updateSelectedRow()
 {
     return false;
 }

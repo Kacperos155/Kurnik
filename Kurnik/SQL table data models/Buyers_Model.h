@@ -7,9 +7,8 @@ class Buyers_Model : public SQL_Data_Model
 public:
 	Buyers_Model(SQLite::Database& database);
 	wxSizer* create_inputs(wxWindow* parent) override;
+	bool read_inputs() override;
 	bool reset_input() override;
-	bool addRow() override;
-	bool updateSelectedRow() override;
 	bool loadFromSelection() override;
 };
 

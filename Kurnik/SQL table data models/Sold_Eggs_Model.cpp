@@ -62,6 +62,21 @@ wxSizer* Sold_Eggs_Model::create_inputs(wxWindow* parent)
 	return inputs_sizer;
 }
 
+bool Sold_Eggs_Model::read_inputs()
+{
+	auto date = date_input->GetDate();
+	auto eggs = eggs_input->GetValue();
+	auto price = price_input->GetValue();
+	auto buyer = static_cast<long>(buyer_input->GetItemData(buyer_input->GetFirstSelected()));
+
+	prepareChange_ISO_Date("Date", std::move(date));
+	prepareChange("Amount", eggs);
+	prepareChange("Price", price);
+	if (buyer != 0)
+		prepareChange("Buyer", buyer);
+	return true;
+}
+
 bool Sold_Eggs_Model::reset_input()
 {
 	date_input->SetDate(std::move(wxDateTime{}.SetToCurrent()));
@@ -69,46 +84,6 @@ bool Sold_Eggs_Model::reset_input()
 	price_input->SetValue(0);
 	buyer_input->Select(buyer_input->GetFirstSelected(), false);
 	return true;
-}
-
-bool Sold_Eggs_Model::addRow()
-{
-	auto date = date_input->GetDate();
-	auto eggs = eggs_input->GetValue();
-	auto price = price_input->GetValue();
-	auto buyer = static_cast<long>(buyer_input->GetItemData(buyer_input->GetFirstSelected()));
-
-	auto statement = SQLite::Statement(database, R"(INSERT INTO "Sold Eggs"(Amount, Price, Date, Buyer) VALUES (?,?,?,?);)");
-	try {
-		statement.bind(1, eggs);
-		statement.bind(2, price);
-		statement.bind(3, fmt::format("{}-{:0>2}-{:0>2}", date.GetYear(), date.GetMonth() + 1, date.GetDay()));
-		statement.bind(4, buyer);
-		wxLogInfo(statement.getExpandedSQL().c_str());
-		statement.exec();
-	}
-	catch (SQLite::Exception exception) {
-		SQL_Error(exception);
-		return false;
-	}
-	++rows_amount;
-	Reset();
-	return true;
-}
-
-bool Sold_Eggs_Model::updateSelectedRow()
-{
-	auto date = date_input->GetDate();
-	auto eggs = eggs_input->GetValue();
-	auto price = price_input->GetValue();
-	auto buyer = static_cast<long>(buyer_input->GetItemData(buyer_input->GetFirstSelected()));
-
-	auto changes = fmt::format(R"("{}" = '{}-{:0>2}-{:0>2}')", "Date", date.GetYear(), date.GetMonth() + 1, date.GetDay());
-	if (eggs != 0)
-		changes += fmt::format(",\n\"{}\" = '{}'", "Amount", eggs);
-	changes += fmt::format(",\n\"{}\" = '{}'", "Price", price);
-	changes += fmt::format(",\n\"{}\" = '{}'", "Buyer", buyer);
-	return updateSelectedRow_(std::move(changes));
 }
 
 bool Sold_Eggs_Model::loadFromSelection()

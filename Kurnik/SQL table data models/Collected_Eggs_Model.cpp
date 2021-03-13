@@ -30,6 +30,22 @@ wxSizer* Collected_Eggs_Model::create_inputs(wxWindow* parent)
 	return inputs_sizer;
 }
 
+bool Collected_Eggs_Model::read_inputs()
+{
+	auto date = date_input->GetDate();
+	auto eggs = eggs_input->GetValue();
+	auto small_eggs = small_eggs_input->GetValue();
+
+	prepareChange_ISO_Date("Date", std::move(date));
+	prepareChange("Amount", eggs);
+	if (small_eggs != 0)
+		prepareChange("Small eggs", small_eggs);
+	else
+		prepareChange_NULL("Small eggs");
+
+	return true;
+}
+
 bool Collected_Eggs_Model::reset_input()
 {
 	auto date = wxDateTime();
@@ -40,54 +56,10 @@ bool Collected_Eggs_Model::reset_input()
 	return true;
 }
 
-bool Collected_Eggs_Model::addRow()
-{
-	auto date = date_input->GetDate();
-	auto eggs = eggs_input->GetValue();
-	auto small_eggs = small_eggs_input->GetValue();
-
-	auto statement = SQLite::Statement(database, R"(INSERT INTO "Collected Eggs"(Date, Amount, "Small eggs") VALUES (?,?,?);)");
-	try {
-		statement.bind(1, fmt::format("{}-{:0>2}-{:0>2}", date.GetYear(), date.GetMonth() + 1, date.GetDay()));
-		statement.bind(2, eggs);
-		if (small_eggs != 0)
-			statement.bind(3, small_eggs);
-		wxLogInfo(statement.getExpandedSQL().c_str());
-		statement.exec();
-	}
-	catch (SQLite::Exception exception) {
-		SQL_Error(exception);
-		return false;
-	}
-	++rows_amount;
-	Reset();
-	return true;
-}
-
-bool Collected_Eggs_Model::updateSelectedRow()
-{
-	auto date = date_input->GetDate();
-	auto eggs = eggs_input->GetValue();
-	auto small_eggs = small_eggs_input->GetValue();
-
-	auto changes = fmt::format(R"("{}" = '{}-{:0>2}-{:0>2}')", "Date", date.GetYear(), date.GetMonth() + 1, date.GetDay());
-	if(eggs != 0)
-		changes+= fmt::format(",\n\"{}\" = '{}'", "Amount", eggs);
-	if(small_eggs != 0)
-		changes+= fmt::format(",\n\"{}\" = '{}'", "Amount", small_eggs);
-	return updateSelectedRow_(std::move(changes));
-}
-
 bool Collected_Eggs_Model::loadFromSelection()
 {
 	if (selected_row == std::numeric_limits<unsigned>::max())
 		return false;
-
-	auto string_view_to_short = [](std::string_view sv) {
-		short x;
-		std::from_chars(sv.data(), sv.data() + sv.size(), x);
-		return x;
-	};
 
 	SQLite::Statement statement(database, fmt::format(R"(SELECT * FROM "{}" LIMIT 1 OFFSET {};)", table, selected_row));
 	if (statement.executeStep() == 0)
