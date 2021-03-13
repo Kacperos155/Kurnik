@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS "Bought Resources" (
 const char* sql_create_view_sold_eggs_and_buyers = R"_sql_(
 DROP VIEW IF EXISTS "Sold Eggs + Buyers";
 CREATE VIEW IF NOT EXISTS "Sold Eggs + Buyers" AS
-    SELECT Amount, Price || " zł" AS 'Price (zł)', Date, Name AS "Buyer"
+    SELECT Date, Amount, Price || " zł" AS 'Price (zł)', Name AS "Buyer"
     FROM "Sold Eggs" 
     LEFT JOIN Buyers 
     ON Buyer = Buyers.ID;

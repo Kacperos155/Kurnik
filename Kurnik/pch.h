@@ -12,6 +12,7 @@
 #include <wx/notebook.h>
 #include <wx/calctrl.h>
 #include <wx/spinctrl.h>
+#include <wx/listctrl.h>
 //Other libs
 #include <fmt/format.h>
 #include <SQLiteCpp/SQLiteCpp.h>
