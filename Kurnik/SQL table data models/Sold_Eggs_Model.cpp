@@ -31,9 +31,10 @@ wxSizer* Sold_Eggs_Model::create_inputs(wxWindow* parent)
 		SQL_Error(exception);
 		return inputs_sizer;
 	}
+	buyer_input->CacheBestSize(date_input->GetBestSize());
 
-	auto& label_position = wxSizerFlags().Center().Border(wxTOP);
-	auto& position = wxSizerFlags().Expand().Border(wxALL xor wxTOP);
+	auto& label_position = wxSizerFlags().Center();
+	auto& position = wxSizerFlags().Expand();
 	inputs_sizer->Add(date_label, label_position);
 	inputs_sizer->Add(eggs_label, label_position);
 	inputs_sizer->Add(price_label, label_position);
@@ -50,7 +51,7 @@ wxSizer* Sold_Eggs_Model::create_inputs(wxWindow* parent)
 	price_input->SetFont(font);
 
 	buyer_input->Bind(wxEVT_SIZE, [&](wxSizeEvent& event) {
-		buyer_input->SetColumnWidth(0, event.GetSize().x);
+		buyer_input->SetColumnWidth(0, buyer_input->GetClientSize().x + 1);
 		});
 	
 	eggs_input->Bind(wxEVT_SPINCTRL, [&](wxSpinEvent& event) {

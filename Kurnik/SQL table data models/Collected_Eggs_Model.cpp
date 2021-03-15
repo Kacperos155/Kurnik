@@ -13,8 +13,8 @@ wxSizer* Collected_Eggs_Model::create_inputs(wxWindow* parent)
 	eggs_input = new wxSpinCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL | wxSP_ARROW_KEYS);
 	small_eggs_input = new wxSpinCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL | wxSP_ARROW_KEYS);
 
-	auto& label_position = wxSizerFlags().Center().Border(wxTOP);
-	auto& position = wxSizerFlags().Center().Shaped();
+	auto& label_position = wxSizerFlags().Center();
+	auto& position = wxSizerFlags().Expand();
 	inputs_sizer->Add(date_label, label_position);
 	inputs_sizer->Add(eggs_label, label_position);
 	inputs_sizer->Add(small_eggs_label, label_position);

@@ -31,38 +31,37 @@ void SQL_Editor::init_pages()
 		auto* panel = new wxPanel(this);
 		auto* data_view = new wxDataViewCtrl(panel, -1, wxDefaultPosition, wxDefaultSize,
 			wxDV_ROW_LINES | wxDV_VERT_RULES | wxDV_HORIZ_RULES);
-		data_view->SetMinSize(wxSize(600, 500));
 
 		data_view->AssociateModel(model);
+		data_view->SetMinSize(wxSize(100, 400));
 
 		for (const auto& col : model->getColumns()) {
 			data_view->AppendColumn(col);
 		}
 
 		auto* main_vertical_sizer = new wxBoxSizer(wxVERTICAL);
-		main_vertical_sizer->Add(data_view, wxSizerFlags(1).Expand());
-		panel->SetSizer(main_vertical_sizer);
+		main_vertical_sizer->Add(data_view, wxSizerFlags(2).Expand());
 		panel->SetName(model_name);
 
-		main_vertical_sizer->Add(model->create_inputs(panel), wxSizerFlags().Center());
+		main_vertical_sizer->Add(model->create_inputs(panel), wxSizerFlags().Center().Border());
 
 		main_vertical_sizer->Add(init_buttons(panel, data_models[model_name]), wxSizerFlags().Right());
+		panel->SetSizerAndFit(main_vertical_sizer);
+
 		AddPage(panel, model_name);
 
 		data_view->Bind(wxEVT_DATAVIEW_SELECTION_CHANGED, [&](wxDataViewEvent& event) {
-			auto selection_ID = reinterpret_cast<wxDataViewCtrl*>(event.GetEventObject())->GetSelection().GetID();
-/*			*/#pragma warning(push)
-/*			*/#pragma warning(disable : 4311) // pointer trunctuation
-/*			*/#pragma warning(disable : 4302) // trunctuation
-			auto selection = reinterpret_cast<unsigned>(selection_ID);
-/*			*/#pragma warning(pop)
+			auto* data_view = reinterpret_cast<wxDataViewCtrl*>(event.GetEventObject());
+			auto selection_ID = data_view->GetSelection();
+			if (!selection_ID.IsOk())
+				return;
+			auto selection = reinterpret_cast<std::size_t>(selection_ID.GetID());
 
 			wxLogInfo(fmt::format("Selected row: {}", selection).c_str());
 			if (selection == wxNOT_FOUND)
 				return;
 
-			auto* model = reinterpret_cast<wxDataViewCtrl*>(event.GetEventObject())->GetModel();
-			reinterpret_cast<SQL_Data_Model*>(model)->selectRow(selection);
+			reinterpret_cast<SQL_Data_Model*>(data_view->GetModel())->selectRow(static_cast<unsigned>(selection));
 			});
 	}
 
