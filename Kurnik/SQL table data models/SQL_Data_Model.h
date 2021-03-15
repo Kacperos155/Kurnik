@@ -2,11 +2,13 @@
 #include "../pch.h"
 class SQL_Data_Model : public wxDataViewVirtualListModel
 {
+	using columns_values = std::unordered_map<std::string, std::string>;
+	columns_values key_value_changes;
 	std::vector<wxDataViewColumn*> view_columns;
-	std::vector<std::pair<std::string, std::string>> key_value_changes;
 
 	void initColumns();
 	const unsigned calcRowsAmount();
+	[[nodiscard]] const std::string create_WHERE(columns_values& values) const;
 
 protected:
 	SQLite::Database& database;
@@ -18,7 +20,8 @@ protected:
 		selected_row = std::numeric_limits<unsigned>::max();
 	wxFlexGridSizer* inputs_sizer = nullptr;
 
-	[[nodiscard]] const std::pair<std::string, std::string> getRowValues(unsigned row = std::numeric_limits<unsigned>::max()) const;
+	[[nodiscard]] const columns_values getRowValues(unsigned row = std::numeric_limits<unsigned>::max()) const;
+
 	void prepareChange(std::string&& key, std::string&& value);
 	void prepareChange_ISO_Date(std::string&& key, wxDateTime&& iso_date);
 	void prepareChange_NULL(std::string&& key);
