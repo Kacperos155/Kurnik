@@ -31,7 +31,7 @@ void SQL_Data_Model::initColumns()
 		auto& col = view_columns.emplace_back(new wxDataViewColumn(title, text_renderer, i));
 		col->SetMinWidth(wxDVC_DEFAULT_WIDTH);
 	}
-	key_value_changes.reserve(columns_count);
+	values_to_change.reserve(columns_count);
 }
 
 const std::string SQL_Data_Model::create_WHERE(columns_values& values) const
@@ -80,7 +80,7 @@ const std::unordered_map<std::string, std::string> SQL_Data_Model::getRowValues(
 
 void SQL_Data_Model::prepareChange(std::string&& key, std::string&& value)
 {
-	key_value_changes.insert(std::make_pair(std::move(key), std::move(value)));
+	values_to_change.insert(std::make_pair(std::move(key), std::move(value)));
 }
 
 void SQL_Data_Model::prepareChange_ISO_Date(std::string&& key, wxDateTime&& iso_date)
@@ -91,7 +91,7 @@ void SQL_Data_Model::prepareChange_ISO_Date(std::string&& key, wxDateTime&& iso_
 
 void SQL_Data_Model::prepareChange_NULL(std::string&& key)
 {
-	key_value_changes.insert(std::make_pair(std::move(key), std::string{}));
+	values_to_change.insert(std::make_pair(std::move(key), std::string{}));
 }
 
 const std::vector<wxDataViewColumn*>& SQL_Data_Model::getColumns() const
@@ -135,18 +135,18 @@ bool SQL_Data_Model::addRow()
 	if (!read_inputs())
 		return false;
 
-	auto it = key_value_changes.begin();
+	auto it = values_to_change.begin();
 	auto columns = fmt::format("\"{}\"", it->first);
 	auto values = fmt::format("'{}'", it->second);
 
-	while (++it != key_value_changes.end()) {
+	while (++it != values_to_change.end()) {
 		columns += fmt::format(", \"{}\"", it->first);
 		if (it->second.empty())
 			values += fmt::format(", NULL", std::move(it->second));
 		else
 			values += fmt::format(", '{}'", std::move(it->second));
 	}
-	key_value_changes.clear();
+	values_to_change.clear();
 
 	try {
 		auto statement = SQLite::Statement(database, fmt::format(R"(INSERT INTO "{}"({}) VALUES ({});)", table, std::move(columns), std::move(values)));
@@ -164,12 +164,27 @@ bool SQL_Data_Model::addRow()
 
 bool SQL_Data_Model::updateSelectedRow()
 {
+	auto changes_amount = values_to_change.size();
 	if (!read_inputs()
 		|| selected_row == std::numeric_limits<unsigned>::max()
-		|| key_value_changes.size() == 0)
+		|| changes_amount == 0)
 		return false;
 
-	auto key_value_to_string = [&](std::string& str, auto it) {
+	auto values = getRowValues();
+	std::vector<columns_values::const_iterator> real_changes, unchanged;
+	real_changes.reserve(changes_amount);
+	unchanged.reserve(changes_amount);
+
+	for (auto it = values_to_change.cbegin(); it != values_to_change.cend(); ++it) {
+		if (it->second == values.at(it->first))
+			unchanged.push_back(it);
+		else
+			real_changes.push_back(it);
+	}
+	if (real_changes.empty())
+		return false;
+
+	auto change_to_string = [&](std::string& str, auto it) {
 		if (it->second.empty())
 			str += fmt::format(" \"{}\" = NULL ", it->first);
 		else
@@ -177,27 +192,27 @@ bool SQL_Data_Model::updateSelectedRow()
 	};
 
 	auto changes = std::string{};
-	key_value_to_string(changes, key_value_changes.begin());
-	for (auto it = std::next(key_value_changes.cbegin()); it != key_value_changes.cend(); ++it) {
+	change_to_string(changes, real_changes[0]);
+	for (auto it = std::next(real_changes.cbegin()); it != real_changes.cend(); ++it) {
 		changes += ',';
-		key_value_to_string(changes, it);
+		change_to_string(changes, *it);
 	}
 
 	try {
-		auto values = getRowValues();
 		auto where_sql = create_WHERE(values);
 
-		auto to_update = fmt::format(R"(UPDATE "{}" SET {} {})", table, changes, create_WHERE(values));
+		auto to_update = fmt::format(R"(UPDATE "{}" SET {} {})", table, std::move(changes), create_WHERE(values));
 		auto confirmation = fmt::format("Do you realy want to update row {} ?\n", selected_row);
 
-		std::string before{}, now{};
-		for (auto& change : key_value_changes) {
-			before += fmt::format("\n{}: {}", change.first, values.at(change.first));
-			now += fmt::format("\n{}: {}", change.first, change.second);
+		for (const auto& no_change : unchanged) {
+			confirmation += fmt::format("\n{}: {}", no_change->first, no_change->second);
 		}
-		confirmation += fmt::format("{}\nTO\n{}", std::move(before), std::move(now));
+		confirmation += '\n';
+		for (const auto& change : real_changes) {
+			confirmation += fmt::format("\n{}: {} -> {}", change->first, values.at(change->first), change->second);
+		}
 
-		key_value_changes.clear();
+		values_to_change.clear();
 		if (wxNO == wxMessageBox(std::move(confirmation), "Update Confirmation", wxYES_NO | wxICON_WARNING | wxNO_DEFAULT))
 			return false;
 		wxLogInfo(to_update.c_str());

@@ -3,7 +3,7 @@
 class SQL_Data_Model : public wxDataViewVirtualListModel
 {
 	using columns_values = std::unordered_map<std::string, std::string>;
-	columns_values key_value_changes;
+	columns_values values_to_change;
 	std::vector<wxDataViewColumn*> view_columns;
 
 	void initColumns();
