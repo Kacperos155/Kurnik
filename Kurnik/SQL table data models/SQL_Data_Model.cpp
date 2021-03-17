@@ -123,7 +123,7 @@ void SQL_Data_Model::Reset(bool recalc)
 
 bool SQL_Data_Model::selectRow(unsigned int row)
 {
-	if (row > rows_amount)
+	if (row > rows_amount || row == 0)
 		return false;
 	selected_row = rows_amount - row;
 	loadFromSelection();
@@ -164,9 +164,10 @@ bool SQL_Data_Model::addRow()
 
 bool SQL_Data_Model::updateSelectedRow()
 {
+	if (!read_inputs())
+		return false;
 	auto changes_amount = values_to_change.size();
-	if (!read_inputs()
-		|| selected_row == std::numeric_limits<unsigned>::max()
+	if (selected_row == std::numeric_limits<unsigned>::max()
 		|| changes_amount == 0)
 		return false;
 

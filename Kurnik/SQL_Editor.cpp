@@ -48,6 +48,8 @@ void SQL_Editor::init_pages()
 		main_vertical_sizer->Add(init_buttons(panel, data_models[model_name]), wxSizerFlags().Right());
 		panel->SetSizerAndFit(main_vertical_sizer);
 
+		data_view->Select(data_view->GetTopItem());
+		model->selectRow(1);
 		AddPage(panel, model_name);
 
 		data_view->Bind(wxEVT_DATAVIEW_SELECTION_CHANGED, [&](wxDataViewEvent& event) {
