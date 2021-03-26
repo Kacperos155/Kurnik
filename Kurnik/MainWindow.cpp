@@ -31,9 +31,19 @@ void MainWindow::create_menu()
 	SetMenuBar(menu_bar);
 }
 
+void MainWindow::load_icon()
+{
+	if (app_icon == nullptr)
+		app_icon = new wxIcon;
+
+	app_icon->LoadFile("../Resources/Kurnik.png", wxBITMAP_TYPE_PNG);
+	SetIcon(*app_icon);
+}
+
 MainWindow::MainWindow(std::string_view title, SQLite::Database& database)
 	: wxFrame(nullptr, wxID_ANY, title.data()), database(database)
 {
+	wxInitAllImageHandlers();
 	create_menu();
 
 	editor = new SQL_Editor(this, database);
@@ -43,4 +53,5 @@ MainWindow::MainWindow(std::string_view title, SQLite::Database& database)
 	status_bar = CreateStatusBar();
 	Center();
 	SetFocus();
+	load_icon();
 }

@@ -15,8 +15,11 @@ class MainWindow : public wxFrame
 	wxStatusBar* status_bar = nullptr;
 
 	wxBoxSizer* main_vertical_sizer = new wxBoxSizer(wxVERTICAL);
+	wxIcon* app_icon = new wxIcon();
 
 	void create_menu();
+	void load_icon();
+
 public:
 	MainWindow(std::string_view title, SQLite::Database& database);
 };
